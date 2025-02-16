@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template to create AWS Config rule'
+
+Parameters:
+  ConfigRuleName:
+    Type: String
+    Default: 'terraform-jenkins-demo-config-rule'
+    Description: 'AWS Config Rule Name'
+
+Resources:
+  ConfigRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: !Ref ConfigRuleName
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_PASSWORD_POLICY

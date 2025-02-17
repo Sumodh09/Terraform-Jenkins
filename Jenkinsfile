@@ -29,7 +29,7 @@ pipeline {
 
        stage('Install Terraform') {
     steps {
-        bat 'terraform --version'
+        bat 'terraform -version'
     }
 }
         stage('Terraform Deployment') {

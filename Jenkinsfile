@@ -1,54 +1,51 @@
-pipeline {
-
-    parameters {
-        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
-    } 
-    environment {
-        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+def installTerraform() {
+    // Check if terraform is already installed
+    def terraformExists = sh(script: 'which terraform', returnStatus: true)
+    if (terraformExists != 0) {
+        // Install terraform
+        sh '''
+            echo "Installing Terraform..."
+            wget https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip
+            unzip terraform_1.0.0_linux_amd64.zip
+            sudo mv terraform /usr/local/bin/
+            rm -f terraform_1.0.0_linux_amd64.zip
+        '''
+    } else {
+        echo "Terraform already installed!"
     }
+}
 
-   agent  any
+pipeline {
+    agent any
+
     stages {
-        stage('checkout') {
+        stage('Checkout Code') {
             steps {
-                 script{
-                        dir("terraform")
-                        {
-                            git "https://github.com/Sumodh09/Terraform-Jenkins.git"
-                        }
-                    }
+                // Pull the git repo
+                cleanWs()
+                checkout scm
+            }
+        }
+
+        stage('Install Terraform') {
+            steps {
+                script {
+                  installTerraform()
+            }
+
+          }
+	}
+        stage('Terraform Deployment') {
+            steps {
+                script {
+                    // CD into deployment folder and run terraform commands
+                    sh '''
+                        terraform init
+                        terraform plan
+                        terraform apply -auto-approve
+                    '''
                 }
             }
-
-        stage('Plan') {
-            steps {
-                sh 'pwd;cd terraform/ ; terraform init'
-                sh "pwd;cd terraform/ ; terraform plan -out tfplan"
-                sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
-            }
-        }
-        stage('Approval') {
-           when {
-               not {
-                   equals expected: true, actual: params.autoApprove
-               }
-           }
-
-           steps {
-               script {
-                    def plan = readFile 'terraform/tfplan.txt'
-                    input message: "Do you want to apply the plan?",
-                    parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
-               }
-           }
-       }
-
-        stage('Apply') {
-            steps {
-                sh "pwd;cd terraform/ ; terraform apply -input=false tfplan"
-            }
         }
     }
-
-  }
+}

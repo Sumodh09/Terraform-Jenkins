@@ -53,14 +53,11 @@ pipeline {
         stage('Terraform Deployment') {
             steps {
                 script {
-                    // CD into deployment folder and run terraform commands
-                    dir('deployment') {
                         sh '''
                             terraform init
                             terraform plan
                             terraform apply -auto-approve
                         '''
-                    }
                 }
             }
         }

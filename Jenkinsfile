@@ -1,14 +1,14 @@
 def installTerraform() {
-    // Check if terraform is already installed
-    def terraformExists = sh(script: 'which terraform', returnStatus: true)
+    // Check if Terraform is already installed
+    def terraformExists = bat(script: 'where terraform', returnStatus: true)
     if (terraformExists != 0) {
-        // Install terraform
-        sh '''
-            echo "Installing Terraform..."
-            wget https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip
-            unzip terraform_1.0.0_linux_amd64.zip
-            sudo mv terraform /usr/local/bin/
-            rm -f terraform_1.0.0_linux_amd64.zip
+        // Install Terraform
+        bat '''
+            echo Installing Terraform...
+            powershell -Command "Invoke-WebRequest -Uri https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_windows_amd64.zip -OutFile terraform.zip"
+            powershell -Command "Expand-Archive -Path terraform.zip -DestinationPath C:\\terraform -Force"
+            powershell -Command "Move-Item -Path C:\\terraform\\terraform.exe -Destination C:\\Windows\\System32\\terraform.exe"
+            del terraform.zip
         '''
     } else {
         echo "Terraform already installed!"

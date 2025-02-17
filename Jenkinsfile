@@ -15,6 +15,7 @@ def installTerraform() {
     }
 }
 
+
 pipeline {
     agent any
 
@@ -27,20 +28,25 @@ pipeline {
             }
         }
 
-       stage('Install Terraform') {
-    steps {
-        bat 'terraform -version'
-    }
-}
+        stage('Install Terraform') {
+            steps {
+                script {
+                  installTerraform()
+            }
+
+          }
+	}
         stage('Terraform Deployment') {
             steps {
                 script {
                     // CD into deployment folder and run terraform commands
-                    sh '''
-                        terraform init
-                        terraform plan
-                        terraform apply -auto-approve
-                    '''
+                    dir('deployment') {
+                        sh '''
+                            terraform init
+                            terraform plan
+                            terraform apply -auto-approve
+                        '''
+                    }
                 }
             }
         }

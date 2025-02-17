@@ -1,5 +1,19 @@
 def installTerraform() {
-    // Check if Terraform is already installed
+    // Check if Git is installed
+    def gitExists = bat(script: 'where git', returnStatus: true)
+    if (gitExists != 0) {
+        // Install Git
+        bat '''
+            echo Installing Git...
+            powershell -Command "Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/Git-2.42.0-64-bit.exe -OutFile git-installer.exe"
+            powershell -Command "Start-Process -FilePath git-installer.exe -ArgumentList '/VERYSILENT /NORESTART' -Wait"
+            del git-installer.exe
+        '''
+    } else {
+        echo "Git already installed!"
+    }
+
+    // Check if Terraform is installed
     def terraformExists = bat(script: 'where terraform', returnStatus: true)
     if (terraformExists != 0) {
         // Install Terraform

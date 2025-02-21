@@ -42,8 +42,7 @@ pipeline {
                     dir('deployment') {
                         sh '''
                             terraform init
-                            terraform plan
-                            terraform apply -auto-approve
+			    ls 
                         '''
                     }
                 }

@@ -43,6 +43,8 @@ pipeline {
                         sh '''
                             terraform init
 			    ls 
+                            terraform plan
+			    terraform apply -auto-approve
                         '''
                     }
                 }

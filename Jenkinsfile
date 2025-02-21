@@ -22,7 +22,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 // Pull the git repo
-                cleanWs()
+
                 checkout scm
             }
         }
@@ -41,10 +41,7 @@ pipeline {
                     // CD into deployment folder and run terraform commands
                     dir('deployment') {
                         sh '''
-                            terraform init
-			    ls 
-                            terraform plan
-			    terraform apply -auto-approve
+			    terraform destroy -auto-approve
                         '''
                     }
                 }

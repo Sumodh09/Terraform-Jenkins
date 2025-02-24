@@ -22,7 +22,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 // Pull the git repo
-
+                cleanWs()
                 checkout scm
             }
         }

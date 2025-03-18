@@ -5,7 +5,7 @@ Resources:
   LambdaFunctionPublicAccessProhibited:
     Type: "AWS::Config::ConfigRule"
     Properties:
-      ConfigRuleName: "CFT-Terraform-lambda-function-public-access-prohibited"
+      ConfigRuleName: "ffs-lambda-function-public-access-prohibited"
       Source:
         Owner: "AWS"
         SourceIdentifier: "LAMBDA_FUNCTION_PUBLIC_ACCESS_PROHIBITED"
@@ -16,7 +16,7 @@ Resources:
   LambdaInsideVPC:
     Type: "AWS::Config::ConfigRule"
     Properties:
-      ConfigRuleName: "CFT-Terraform-lambda-inside-vpc"
+      ConfigRuleName: "ffs-lambda-inside-vpc"
       Source:
         Owner: "AWS"
         SourceIdentifier: "LAMBDA_INSIDE_VPC"
@@ -27,7 +27,7 @@ Resources:
   S3BucketLevelPublicAccessProhibited:
     Type: "AWS::Config::ConfigRule"
     Properties:
-      ConfigRuleName: "CFT-Terraform-s3-bucket-level-public-access-prohibited"
+      ConfigRuleName: "ffs-s3-bucket-level-public-access-prohibited"
       Source:
         Owner: "AWS"
         SourceIdentifier: "S3_BUCKET_LEVEL_PUBLIC_ACCESS_PROHIBITED"
@@ -38,7 +38,7 @@ Resources:
   S3BucketLoggingEnabled:
     Type: "AWS::Config::ConfigRule"
     Properties:
-      ConfigRuleName: "CFT-Terraform-s3-bucket-logging-enabled"
+      ConfigRuleName: "ffs-s3-bucket-logging-enabled"
       Source:
         Owner: "AWS"
         SourceIdentifier: "S3_BUCKET_LOGGING_ENABLED"

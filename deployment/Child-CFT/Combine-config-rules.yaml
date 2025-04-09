@@ -1,0 +1,291 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  LambdaRuntime:
+    Type: String
+    Default: "python3.8"
+    Description: "Specify the allowed runtime for Lambda functions."
+    
+  AuthorizedPorts:
+    Type: CommaDelimitedList
+    Default: "443,80"
+    Description: "List of authorized ports for the VPC_SG_OPEN_ONLY_TO_AUTHORIZED_PORTS rule"
+ 
+
+Resources:
+# Config rules for VPC Services 
+  # Config rules for VPC Services 
+  VpcDefaultSecurityGroupClosed:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-vpc-default-security-group-closed"
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::EC2::SecurityGroup"
+      Source:
+        Owner: AWS
+        SourceIdentifier: "VPC_DEFAULT_SECURITY_GROUP_CLOSED"
+
+  LambdaVpcMultiAzCheckRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-lambda-vpc-multi-az-check"
+      Description: "Checks if a Lambda function in a VPC is deployed across multiple Availability Zones."
+      Source:
+        Owner: AWS
+        SourceIdentifier: LAMBDA_VPC_MULTI_AZ_CHECK
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::Lambda::Function
+
+  VpcSgOpenOnlyToAuthorizedPorts:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-vpc-sg-open-only-to-authorized-ports"
+      InputParameters:
+        authorizedTcpPorts: !Join [",", !Ref AuthorizedPorts]
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::EC2::SecurityGroup"
+      Source:
+        Owner: AWS
+        SourceIdentifier: "VPC_SG_OPEN_ONLY_TO_AUTHORIZED_PORTS"
+
+# Config rule for Security Group Service
+  ConfigRuleNameLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties: 
+      Handler: 'Rule_Name_Check_Script.lambda_handler'
+      Role: !GetAtt LambdaExecutionnameRole.Arn
+      Code: 
+        S3Bucket: 'demo-python-separate-bucket-name'
+        S3Key: 'Rule_Name_Check_Script.zip'
+      Runtime: 'python3.8'
+      Timeout: 300
+
+  LambdaExecutionnameRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service: 'lambda.amazonaws.com'
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: 'LambdaExecutionnamePolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+               - Effect: 'Allow'
+                 Action:
+                   - 'logs:CreateLogGroup'
+                   - 'logs:CreateLogStream'
+                   - 'logs:PutLogEvents'
+                 Resource: 'arn:aws:logs:*:*:*'
+              #  - Effect: 'Allow'
+              #    Action:
+              #      - "s3:PutObject"
+              #    Resource: 'arn:aws:s3:::*'
+               - Effect: 'Allow'
+                 Action:
+                   - 'config:DescribeConfigRules'
+                   - 'config:GetComplianceDetailsByConfigRule'
+                   - 'config:PutConfigRule'
+                   - 'config:PutEvaluations'
+                 Resource: '*'
+
+  LambdaInvokePermissionname:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !GetAtt ConfigRuleNameLambdaFunction.Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: 'config.amazonaws.com'
+
+  ConfigRule:
+    Type: 'AWS::Config::ConfigRule'
+    Properties:
+      ConfigRuleName: 'configrule-custom-config-rule-name-check'
+      # Scope:
+      #   ComplianceResourceTypes:
+      #     - 'AWS::S3::Bucket'
+      Source:
+        Owner: 'CUSTOM_LAMBDA'
+        SourceIdentifier: !GetAtt ConfigRuleNameLambdaFunction.Arn
+        SourceDetails:
+          - EventSource: 'aws.config'
+            MessageType: 'ConfigurationItemChangeNotification'
+      InputParameters: {}
+      MaximumExecutionFrequency: 'TwentyFour_Hours'
+
+  ConfigRuleLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties: 
+      Handler: 'CSV_Script.lambda_handler'
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code: 
+        S3Bucket: 'demo-python-separate-bucket-name'
+        S3Key: 'CSV_Script.zip'
+      Runtime: 'python3.8'
+      Timeout: 300
+
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service: 'lambda.amazonaws.com'
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: 'LambdaExecutionPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+               - Effect: 'Allow'
+                 Action:
+                   - 'logs:CreateLogGroup'
+                   - 'logs:CreateLogStream'
+                   - 'logs:PutLogEvents'
+                 Resource: 'arn:aws:logs:*:*:*'
+               - Effect: 'Allow'
+                 Action:
+                   - "s3:PutObject"
+                 Resource: 'arn:aws:s3:::*'
+               - Effect: 'Allow'
+                 Action:
+                   - "config:DescribeConfigRules"
+                   - "config:GetComplianceDetailsByConfigRule"
+                 Resource: '*'
+
+  LambdaInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !GetAtt ConfigRuleLambdaFunction.Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: 'config.amazonaws.com'
+  
+  ConfigRuleVPCSecurityGroupClosed:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-security-group-default-closed"
+      Description: "Checks that the default security group of a VPC does not allow inbound or outbound traffic."
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::EC2::SecurityGroup"
+      Source:
+        Owner: AWS
+        SourceIdentifier: "VPC_DEFAULT_SECURITY_GROUP_CLOSED"
+
+  ConfigRuleRDSSecurityGroupNotAllowed:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-rds-security-group-unused"
+      Description: "Checks that RDS database security groups are not in use."
+      Scope:
+        ComplianceResourceTypes:
+          - "AWS::RDS::DBSecurityGroup"
+      Source:
+        Owner: AWS
+        SourceIdentifier: "RDS_DB_SECURITY_GROUP_NOT_ALLOWED"
+  
+  # Config rule for S3 services
+    # Config rules
+
+  S3BucketPublicWriteProhibited:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-s3-bucket-public-write-prohibited"
+      Description: "Checks that S3 buckets do not allow public write access."
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_PUBLIC_WRITE_PROHIBITED
+
+  S3BucketPolicyConfigRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-s3-bucket-policy-not-more-permissive"
+      Description: Ensures no S3 bucket allows GetBucketPolicy permission.
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_POLICY_NOT_MORE_PERMISSIVE
+      InputParameters:
+        controlPolicy: '{"Version":"2012-10-17","Statement":[{"Effect":"Deny","Action":["s3:GetBucketPolicy"],"Principal":"*","Resource":"arn:aws:s3:::*"}]}'
+
+  S3VersionLifecyclePolicyCheck:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-s3-version-lifecycle-policy-check"
+      Description: "Checks if S3 buckets have a version lifecycle policy."
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_VERSION_LIFECYCLE_POLICY_CHECK
+
+  S3BucketLevelPublicAccessProhibited:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-s3-bucket-level-public-access-prohibited"
+      Description: "Ensures S3 buckets do not allow public access at the bucket level."
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_LEVEL_PUBLIC_ACCESS_PROHIBITED
+
+  # Config rule for Lambda function
+  LambdaFunctionSettingsCheckRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-lambda-function-settings-check"
+      Description: "Checks if the Lambda function settings match the specified runtime."
+      Source:
+        Owner: AWS
+        SourceIdentifier: LAMBDA_FUNCTION_SETTINGS_CHECK
+      InputParameters:
+        runtime: !Ref LambdaRuntime
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::Lambda::Function
+
+  LambdaInsideVpcRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-lambda-inside-vpc"
+      Description: "Checks if Lambda functions are inside a VPC."
+      Source:
+        Owner: AWS
+        SourceIdentifier: LAMBDA_INSIDE_VPC
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::Lambda::Function
+
+  LambdaFunctionPublicAccessProhibitedRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: "configrule-lambda-function-public-access-prohibited"
+      Description: "Checks if Lambda functions prohibit public access."
+      Source:
+        Owner: AWS
+        SourceIdentifier: LAMBDA_FUNCTION_PUBLIC_ACCESS_PROHIBITED
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::Lambda::Function
+
+Outputs:
+  ConfigRuleLambdaFunction:
+    Value: !Ref ConfigRuleLambdaFunction
+    # Export:
+    #   Name: ConfigRuleLambdaFunction

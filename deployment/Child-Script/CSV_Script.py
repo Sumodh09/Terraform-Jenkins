@@ -75,6 +75,7 @@ def write_csv_to_s3(data, bucket_name, file_name):
         Body=csv_buffer.getvalue()
     )
     print(f"CSV file uploaded successfully to s3://{bucket_name}/{file_name}")
+    return csv_buffer.getvalue()
 
 def lambda_handler(event, context):
     all_rules = get_all_config_rules()
@@ -95,4 +96,5 @@ def lambda_handler(event, context):
         print("No evaluation results found.")
         return
 
-    write_csv_to_s3(all_evaluations, S3_BUCKET_NAME, S3_FILE_NAME)
+    details = write_csv_to_s3(all_evaluations, S3_BUCKET_NAME, S3_FILE_NAME)
+    return details

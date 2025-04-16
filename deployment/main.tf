@@ -10,6 +10,9 @@ resource "aws_s3_bucket_acl" "my_bucket_acl" {
 **/
 resource "aws_s3_bucket" "my_bucket" {
   bucket = "demo-python-separate-bucket-name" 
+  lifecycle {
+   prevent_destroy = true
+ }
 }
 
 resource "null_resource" "zip_python_script" {

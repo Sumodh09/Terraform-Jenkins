@@ -180,109 +180,110 @@ Resources:
         Owner: AWS
         SourceIdentifier: "VPC_DEFAULT_SECURITY_GROUP_CLOSED"
 
-  ConfigRuleRDSSecurityGroupNotAllowed:
-    Type: AWS::Config::ConfigRule
-    Properties:
-      ConfigRuleName: "configrule-rds-security-group-unused"
-      Description: "Checks that RDS database security groups are not in use."
-      Scope:
-        ComplianceResourceTypes:
-          - "AWS::RDS::DBSecurityGroup"
-      Source:
-        Owner: AWS
-        SourceIdentifier: "RDS_DB_SECURITY_GROUP_NOT_ALLOWED"
+  # ConfigRuleRDSSecurityGroupNotAllowed:
+  #   Type: AWS::Config::ConfigRule
+  #   Properties:
+  #     ConfigRuleName: "configrule-rds-security-group-unused"
+  #     Description: "Checks that RDS database security groups are not in use."
+  #     Scope:
+  #       ComplianceResourceTypes:
+  #         - "AWS::RDS::DBSecurityGroup"
+  #     Source:
+  #       Owner: AWS
+  #       SourceIdentifier: "RDS_DB_SECURITY_GROUP_NOT_ALLOWED"
   
   # Config rule for S3 services
     # Config rules
 
-  S3BucketPublicWriteProhibited:
-    Type: AWS::Config::ConfigRule
-    Properties:
-      ConfigRuleName: "configrule-s3-bucket-public-write-prohibited"
-      Description: "Checks that S3 buckets do not allow public write access."
-      Scope:
-        ComplianceResourceTypes:
-          - AWS::S3::Bucket
-      Source:
-        Owner: AWS
-        SourceIdentifier: S3_BUCKET_PUBLIC_WRITE_PROHIBITED
+  # S3BucketPublicWriteProhibited:
+  #   Type: AWS::Config::ConfigRule
+  #   Properties:
+  #     ConfigRuleName: "configrule-s3-bucket-public-write-prohibited"
+  #     Description: "Checks that S3 buckets do not allow public write access."
+  #     Scope:
+  #       ComplianceResourceTypes:
+  #         - AWS::S3::Bucket
+  #     Source:
+  #       Owner: AWS
+  #       SourceIdentifier: S3_BUCKET_PUBLIC_WRITE_PROHIBITED
 
-  S3BucketPolicyConfigRule:
-    Type: AWS::Config::ConfigRule
-    Properties:
-      ConfigRuleName: "configrule-s3-bucket-policy-not-more-permissive"
-      Description: Ensures no S3 bucket allows GetBucketPolicy permission.
-      Scope:
-        ComplianceResourceTypes:
-          - AWS::S3::Bucket
-      Source:
-        Owner: AWS
-        SourceIdentifier: S3_BUCKET_POLICY_NOT_MORE_PERMISSIVE
-      InputParameters:
-        controlPolicy: '{"Version":"2012-10-17","Statement":[{"Effect":"Deny","Action":["s3:GetBucketPolicy"],"Principal":"*","Resource":"arn:aws:s3:::*"}]}'
+  # S3BucketPolicyConfigRule:
+  #   Type: AWS::Config::ConfigRule
+  #   Properties:
+  #     ConfigRuleName: "configrule-s3-bucket-policy-not-more-permissive"
+  #     Description: Ensures no S3 bucket allows GetBucketPolicy permission.
+  #     Scope:
+  #       ComplianceResourceTypes:
+  #         - AWS::S3::Bucket
+  #     Source:
+  #       Owner: AWS
+  #       SourceIdentifier: S3_BUCKET_POLICY_NOT_MORE_PERMISSIVE
+  #     InputParameters:
+  #       controlPolicy: '{"Version":"2012-10-17","Statement":[{"Effect":"Deny","Action":["s3:GetBucketPolicy"],"Principal":"*","Resource":"arn:aws:s3:::*"}]}'
 
-  S3VersionLifecyclePolicyCheck:
-    Type: AWS::Config::ConfigRule
-    Properties:
-      ConfigRuleName: "configrule-s3-version-lifecycle-policy-check"
-      Description: "Checks if S3 buckets have a version lifecycle policy."
-      Scope:
-        ComplianceResourceTypes:
-          - AWS::S3::Bucket
-      Source:
-        Owner: AWS
-        SourceIdentifier: S3_VERSION_LIFECYCLE_POLICY_CHECK
+  # S3VersionLifecyclePolicyCheck:
+  #   Type: AWS::Config::ConfigRule
+  #   Properties:
+  #     ConfigRuleName: "configrule-s3-version-lifecycle-policy-check"
+  #     Description: "Checks if S3 buckets have a version lifecycle policy."
+  #     Scope:
+  #       ComplianceResourceTypes:
+  #         - AWS::S3::Bucket
+  #     Source:
+  #       Owner: AWS
+  #       SourceIdentifier: S3_VERSION_LIFECYCLE_POLICY_CHECK
 
-  S3BucketLevelPublicAccessProhibited:
-    Type: AWS::Config::ConfigRule
-    Properties:
-      ConfigRuleName: "configrule-s3-bucket-level-public-access-prohibited"
-      Description: "Ensures S3 buckets do not allow public access at the bucket level."
-      Scope:
-        ComplianceResourceTypes:
-          - AWS::S3::Bucket
-      Source:
-        Owner: AWS
-        SourceIdentifier: S3_BUCKET_LEVEL_PUBLIC_ACCESS_PROHIBITED
+  # S3BucketLevelPublicAccessProhibited:
+  #   Type: AWS::Config::ConfigRule
+  #   Properties:
+  #     ConfigRuleName: "configrule-s3-bucket-level-public-access-prohibited"
+  #     Description: "Ensures S3 buckets do not allow public access at the bucket level."
+  #     Scope:
+  #       ComplianceResourceTypes:
+  #         - AWS::S3::Bucket
+  #     Source:
+  #       Owner: AWS
+  #       SourceIdentifier: S3_BUCKET_LEVEL_PUBLIC_ACCESS_PROHIBITED
 
-  # Config rule for Lambda function
-  LambdaFunctionSettingsCheckRule:
-    Type: AWS::Config::ConfigRule
-    Properties:
-      ConfigRuleName: "configrule-lambda-function-settings-check"
-      Description: "Checks if the Lambda function settings match the specified runtime."
-      Source:
-        Owner: AWS
-        SourceIdentifier: LAMBDA_FUNCTION_SETTINGS_CHECK
-      InputParameters:
-        runtime: !Ref LambdaRuntime
-      Scope:
-        ComplianceResourceTypes:
-          - AWS::Lambda::Function
+  # # Config rule for Lambda function
+  # LambdaFunctionSettingsCheckRule:
+  #   Type: AWS::Config::ConfigRule
+  #   Properties:
+  #     ConfigRuleName: "configrule-lambda-function-settings-check"
+  #     Description: "Checks if the Lambda function settings match the specified runtime."
+  #     Source:
+  #       Owner: AWS
+  #       SourceIdentifier: LAMBDA_FUNCTION_SETTINGS_CHECK
+  #     InputParameters:
+  #       runtime: !Ref LambdaRuntime
+  #     Scope:
+  #       ComplianceResourceTypes:
+  #         - AWS::Lambda::Function
 
-  LambdaInsideVpcRule:
-    Type: AWS::Config::ConfigRule
-    Properties:
-      ConfigRuleName: "configrule-lambda-inside-vpc"
-      Description: "Checks if Lambda functions are inside a VPC."
-      Source:
-        Owner: AWS
-        SourceIdentifier: LAMBDA_INSIDE_VPC
-      Scope:
-        ComplianceResourceTypes:
-          - AWS::Lambda::Function
+  # LambdaInsideVpcRule:
+  #   Type: AWS::Config::ConfigRule
+  #   Properties:
+  #     ConfigRuleName: "configrule-lambda-inside-vpc"
+  #     Description: "Checks if Lambda functions are inside a VPC."
+  #     Source:
+  #       Owner: AWS
+  #       SourceIdentifier: LAMBDA_INSIDE_VPC
+  #     Scope:
+  #       ComplianceResourceTypes:
+  #         - AWS::Lambda::Function
 
-  LambdaFunctionPublicAccessProhibitedRule:
-    Type: AWS::Config::ConfigRule
-    Properties:
-      ConfigRuleName: "configrule-lambda-function-public-access-prohibited"
-      Description: "Checks if Lambda functions prohibit public access."
-      Source:
-        Owner: AWS
-        SourceIdentifier: LAMBDA_FUNCTION_PUBLIC_ACCESS_PROHIBITED
-      Scope:
-        ComplianceResourceTypes:
-          - AWS::Lambda::Function
+  # LambdaFunctionPublicAccessProhibitedRule:
+  #   Type: AWS::Config::ConfigRule
+  #   Properties:
+  #     ConfigRuleName: "configrule-lambda-function-public-access-prohibited"
+  #     Description: "Checks if Lambda functions prohibit public access."
+  #     Source:
+  #       Owner: AWS
+  #       SourceIdentifier: LAMBDA_FUNCTION_PUBLIC_ACCESS_PROHIBITED
+  #     Scope:
+  #       ComplianceResourceTypes:
+  #         - AWS::Lambda::Function
+
 
 Outputs:
   ConfigRuleLambdaFunction:

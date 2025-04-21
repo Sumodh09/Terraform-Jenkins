@@ -40,7 +40,18 @@ pipeline {
                     // CD into deployment folder and run terraform commands
                     dir('deployment') {
                         sh '''
-			    terraform destroy -auto-approve
+			    terraform init
+                            terraform plan
+			    terraform apply -auto-approve
+       
+			    result=$(terraform output -raw lambda_response)
+
+			    if [[ $result == *"NON_COMPLIANT"* ]]; then
+		              echo "Non-Complaint is present will destroy the CFT template and whatever resources asscoiated with CFT except S3 bucket Compliance report"
+			      terraform destroy -target=null_resource.zip_python_script -target=null_resource.zip_python_script_name -target=aws_cloudformation_stack.config_rules_stack -auto-approve
+		            else
+		              echo "Non-compliant resource is not present."
+			    fi
                         '''
                     }
                 }

@@ -42,7 +42,7 @@ pipeline {
                         sh '''
 			    terraform init
                             terraform plan
-			    terraform apply
+			    terraform apply -auto-approve
        
 			    result=$(terraform output -raw lambda_response)
 

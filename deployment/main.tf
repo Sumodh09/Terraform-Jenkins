@@ -2,6 +2,9 @@ provider "aws" {
   region = "us-east-1"
 }
 
+/*
+terraform destroy -target=null_resource.zip_python_script -target=null_resource.zip_python_script_name -target=aws_cloudformation_stack.config_rules_stack -auto-approve
+*/
 /**
 resource "aws_s3_bucket_acl" "my_bucket_acl" {
   bucket = aws_s3_bucket.my_bucket.id
@@ -10,9 +13,9 @@ resource "aws_s3_bucket_acl" "my_bucket_acl" {
 **/
 resource "aws_s3_bucket" "my_bucket" {
   bucket = "demo-python-separate-bucket-name" 
-  lifecycle {
-   prevent_destroy = true
- }
+#   lifecycle {
+#    prevent_destroy = true
+#  }
 }
 
 resource "null_resource" "zip_python_script" {

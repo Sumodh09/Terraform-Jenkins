@@ -26,17 +26,17 @@ Resources:
         Owner: AWS
         SourceIdentifier: "VPC_DEFAULT_SECURITY_GROUP_CLOSED"
 
-  LambdaVpcMultiAzCheckRule:
-    Type: AWS::Config::ConfigRule
-    Properties:
-      ConfigRuleName: "configrule-lambda-vpc-multi-az-check"
-      Description: "Checks if a Lambda function in a VPC is deployed across multiple Availability Zones."
-      Source:
-        Owner: AWS
-        SourceIdentifier: LAMBDA_VPC_MULTI_AZ_CHECK
-      Scope:
-        ComplianceResourceTypes:
-          - AWS::Lambda::Function
+  # LambdaVpcMultiAzCheckRule:
+  #   Type: AWS::Config::ConfigRule
+  #   Properties:
+  #     ConfigRuleName: "configrule-lambda-vpc-multi-az-check"
+  #     Description: "Checks if a Lambda function in a VPC is deployed across multiple Availability Zones."
+  #     Source:
+  #       Owner: AWS
+  #       SourceIdentifier: LAMBDA_VPC_MULTI_AZ_CHECK
+  #     Scope:
+  #       ComplianceResourceTypes:
+  #         - AWS::Lambda::Function
 
   VpcSgOpenOnlyToAuthorizedPorts:
     Type: AWS::Config::ConfigRule
@@ -52,72 +52,72 @@ Resources:
         SourceIdentifier: "VPC_SG_OPEN_ONLY_TO_AUTHORIZED_PORTS"
 
 # Config rule for Security Group Service
-  ConfigRuleNameLambdaFunction:
-    Type: 'AWS::Lambda::Function'
-    Properties: 
-      Handler: 'Rule_Name_Check_Script.lambda_handler'
-      Role: !GetAtt LambdaExecutionnameRole.Arn
-      Code: 
-        S3Bucket: 'demo-python-separate-bucket-name'
-        S3Key: 'Rule_Name_Check_Script.zip'
-      Runtime: 'python3.8'
-      Timeout: 300
+  # ConfigRuleNameLambdaFunction:
+  #   Type: 'AWS::Lambda::Function'
+  #   Properties: 
+  #     Handler: 'Rule_Name_Check_Script.lambda_handler'
+  #     Role: !GetAtt LambdaExecutionnameRole.Arn
+  #     Code: 
+  #       S3Bucket: 'demo-python-separate-bucket-name'
+  #       S3Key: 'Rule_Name_Check_Script.zip'
+  #     Runtime: 'python3.8'
+  #     Timeout: 300
 
-  LambdaExecutionnameRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: 'Allow'
-            Principal:
-              Service: 'lambda.amazonaws.com'
-            Action: 'sts:AssumeRole'
-      Policies:
-        - PolicyName: 'LambdaExecutionnamePolicy'
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-               - Effect: 'Allow'
-                 Action:
-                   - 'logs:CreateLogGroup'
-                   - 'logs:CreateLogStream'
-                   - 'logs:PutLogEvents'
-                 Resource: 'arn:aws:logs:*:*:*'
-              #  - Effect: 'Allow'
-              #    Action:
-              #      - "s3:PutObject"
-              #    Resource: 'arn:aws:s3:::*'
-               - Effect: 'Allow'
-                 Action:
-                   - 'config:DescribeConfigRules'
-                   - 'config:GetComplianceDetailsByConfigRule'
-                   - 'config:PutConfigRule'
-                   - 'config:PutEvaluations'
-                 Resource: '*'
+  # LambdaExecutionnameRole:
+  #   Type: 'AWS::IAM::Role'
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: '2012-10-17'
+  #       Statement:
+  #         - Effect: 'Allow'
+  #           Principal:
+  #             Service: 'lambda.amazonaws.com'
+  #           Action: 'sts:AssumeRole'
+  #     Policies:
+  #       - PolicyName: 'LambdaExecutionnamePolicy'
+  #         PolicyDocument:
+  #           Version: '2012-10-17'
+  #           Statement:
+  #              - Effect: 'Allow'
+  #                Action:
+  #                  - 'logs:CreateLogGroup'
+  #                  - 'logs:CreateLogStream'
+  #                  - 'logs:PutLogEvents'
+  #                Resource: 'arn:aws:logs:*:*:*'
+  #             #  - Effect: 'Allow'
+  #             #    Action:
+  #             #      - "s3:PutObject"
+  #             #    Resource: 'arn:aws:s3:::*'
+  #              - Effect: 'Allow'
+  #                Action:
+  #                  - 'config:DescribeConfigRules'
+  #                  - 'config:GetComplianceDetailsByConfigRule'
+  #                  - 'config:PutConfigRule'
+  #                  - 'config:PutEvaluations'
+  #                Resource: '*'
 
-  LambdaInvokePermissionname:
-    Type: 'AWS::Lambda::Permission'
-    Properties:
-      FunctionName: !GetAtt ConfigRuleNameLambdaFunction.Arn
-      Action: 'lambda:InvokeFunction'
-      Principal: 'config.amazonaws.com'
+  # LambdaInvokePermissionname:
+  #   Type: 'AWS::Lambda::Permission'
+  #   Properties:
+  #     FunctionName: !GetAtt ConfigRuleNameLambdaFunction.Arn
+  #     Action: 'lambda:InvokeFunction'
+  #     Principal: 'config.amazonaws.com'
 
-  ConfigRule:
-    Type: 'AWS::Config::ConfigRule'
-    Properties:
-      ConfigRuleName: 'configrule-custom-config-rule-name-check'
-      # Scope:
-      #   ComplianceResourceTypes:
-      #     - 'AWS::S3::Bucket'
-      Source:
-        Owner: 'CUSTOM_LAMBDA'
-        SourceIdentifier: !GetAtt ConfigRuleNameLambdaFunction.Arn
-        SourceDetails:
-          - EventSource: 'aws.config'
-            MessageType: 'ConfigurationItemChangeNotification'
-      InputParameters: {}
-      MaximumExecutionFrequency: 'TwentyFour_Hours'
+  # ConfigRule:
+  #   Type: 'AWS::Config::ConfigRule'
+  #   Properties:
+  #     ConfigRuleName: 'configrule-custom-config-rule-name-check'
+  #     # Scope:
+  #     #   ComplianceResourceTypes:
+  #     #     - 'AWS::S3::Bucket'
+  #     Source:
+  #       Owner: 'CUSTOM_LAMBDA'
+  #       SourceIdentifier: !GetAtt ConfigRuleNameLambdaFunction.Arn
+  #       SourceDetails:
+  #         - EventSource: 'aws.config'
+  #           MessageType: 'ConfigurationItemChangeNotification'
+  #     InputParameters: {}
+  #     MaximumExecutionFrequency: 'TwentyFour_Hours'
 
   ConfigRuleLambdaFunction:
     Type: 'AWS::Lambda::Function'
@@ -192,8 +192,8 @@ Resources:
   #       Owner: AWS
   #       SourceIdentifier: "RDS_DB_SECURITY_GROUP_NOT_ALLOWED"
   
-  # Config rule for S3 services
-    # Config rules
+  # # Config rule for S3 services
+  #   # Config rules
 
   # S3BucketPublicWriteProhibited:
   #   Type: AWS::Config::ConfigRule
@@ -283,7 +283,6 @@ Resources:
   #     Scope:
   #       ComplianceResourceTypes:
   #         - AWS::Lambda::Function
-
 
 Outputs:
   ConfigRuleLambdaFunction:

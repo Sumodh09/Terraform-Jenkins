@@ -80,7 +80,7 @@ def write_csv_to_s3(data, bucket_name, file_name):
 def lambda_handler(event, context):
     all_rules = get_all_config_rules()
     all_evaluations = []
-    time.sleep(90)
+    time.sleep(60)
     for rule in all_rules:
         evaluations = get_config_rule_evaluations(rule)
         for eval_result in evaluations:

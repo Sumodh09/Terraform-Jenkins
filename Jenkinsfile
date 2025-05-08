@@ -43,7 +43,7 @@ pipeline {
 			    terraform init
                             terraform plan
 			    terraform apply -auto-approve
-       			#terraform output lambda_response | sed 's/\\n/\n/g; s/\\"/"/g; s/\\\\/\\/g' | column -t -s,
+       			    terraform output lambda_response | sed 's/\\n/\n/g; s/\\"/"/g; s/\\\\/\\/g' | column -t -s,
 			    result=$(terraform output -raw lambda_response)
 
 			    if [[ $result == *"NON_COMPLIANT"* ]]; then

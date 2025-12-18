@@ -38,7 +38,7 @@ resource "aws_s3_object" "my_script_zip" {
   #key    = "index.zip" 
   #source = "${path.module}/Child-Script/index.zip"
   key    = "CSV_Script.zip" 
-  source = "${path.module}/deployment/Child-Script/CSV_Script.zip"
+  source = "${path.module}/Child-Script/CSV_Script.zip"
   acl    = "private"
 
   depends_on = [null_resource.zip_python_script]
@@ -49,7 +49,7 @@ resource "aws_s3_object" "my_script_zip_name" {
   #key    = "index.zip" 
   #source = "${path.module}/Child-Script/index.zip"
   key    = "Rule_Name_Check_Script.zip" 
-  source = "${path.module}/deployment/Child-Script/Rule_Name_Check_Script.zip"
+  source = "${path.module}/Child-Script/Rule_Name_Check_Script.zip"
   acl    = "private"
 
   depends_on = [null_resource.zip_python_script_name]

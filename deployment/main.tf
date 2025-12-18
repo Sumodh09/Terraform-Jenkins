@@ -57,7 +57,7 @@ resource "aws_s3_object" "my_script_zip_name" {
 
 resource "aws_cloudformation_stack" "config_rules_stack" {
   name          = "ConfigRulesStack"
-  template_body = file("${path.module}/Child-CFT/CFT-Manage-rule.yaml")
+  template_body = file("${path.module}/Child-CFT/Combine-config-rules.yaml")
   capabilities = ["CAPABILITY_IAM"]
 }
 
